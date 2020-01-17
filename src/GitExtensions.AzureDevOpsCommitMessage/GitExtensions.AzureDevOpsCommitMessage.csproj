@@ -20,6 +20,7 @@
     <PackageReference Include="GitExtensions.Extensibility" Version="0.1.1.40" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="16.4.33" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="System.Resources.Extensions" Version="4.6.0" />
   </ItemGroup>
 
   <!-- Reference to GitExtensions dlls. -->
@@ -46,6 +47,7 @@
     <Description>GitExtensions plugin to get commit message based on Azure Devops PBIs.</Description>
     <PackageProjectUrl>https://github.com/gitextensions/$(PackageId)</PackageProjectUrl>
     <PackageTags>GitExtensions</PackageTags>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
