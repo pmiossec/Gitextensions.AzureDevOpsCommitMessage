@@ -15,5 +15,9 @@ jobs:
         dotnet-version: 2.2.108
     - name: Build & package with dotnet
       run: dotnet pack --configuration Release
+
+    - name: Add private GitHub registry to NuGet
+      run: nuget sources add -name "github" -Source https://nuget.pkg.github.com/pmiossec/index.json -Username pmiossec -Password ${{ secrets.GITHUB_TOKEN }}
+
     - name: Push to GitHub nuget feed
       run: dotnet nuget push "bin/Release/GitExtensions.AzureDevOpsCommitMessage.1.0.0.nupkg" --source "github"
