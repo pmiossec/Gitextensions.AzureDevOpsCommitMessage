@@ -45,7 +45,7 @@
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
     <Authors>Philippe Miossec</Authors>
     <Description>GitExtensions plugin to get commit message based on Azure Devops PBIs.</Description>
-    <PackageProjectUrl>https://github.com/gitextensions/$(PackageId)</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/pmiossec/GitExtensions.AzureDevOpsCommitMessage</PackageProjectUrl>
     <PackageTags>GitExtensions</PackageTags>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
