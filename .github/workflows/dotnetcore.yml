@@ -23,4 +23,4 @@ jobs:
       run: nuget sources add -name "github" -Source https://nuget.pkg.github.com/pmiossec/index.json -Username pmiossec -Password ${{ secrets.GITHUB_TOKEN }}
 
     - name: Push to GitHub nuget feed
-      run: dotnet nuget push "bin/Release/GitExtensions.AzureDevOpsCommitMessage.1.0.0.nupkg" --source "github"
+      run: dotnet nuget push "src/GitExtensions.AzureDevOpsCommitMessage/bin/Release/GitExtensions.AzureDevOpsCommitMessage.*.nupkg" --source "github"
