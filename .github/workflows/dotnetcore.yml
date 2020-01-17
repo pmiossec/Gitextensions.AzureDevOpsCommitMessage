@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
 
-    runs-on: [windows]
+    runs-on: [windows-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -13,7 +13,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.2.108
-    - name: Build with dotnet
-      run:
-        dotnet pack --configuration Release
-        dotnet nuget push "bin/Release/GitExtensions.AzureDevOpsCommitMessage.1.0.0.nupkg" --source "github"
+    - name: Build & package with dotnet
+      run: dotnet pack --configuration Release
+    - name: Push to GitHub nuget feed
+      run: dotnet nuget push "bin/Release/GitExtensions.AzureDevOpsCommitMessage.1.0.0.nupkg" --source "github"
