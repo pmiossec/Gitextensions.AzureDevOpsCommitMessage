@@ -1,6 +1,9 @@
 name: .NET Core
 
-on: [push]
+on:
+  push:
+    tags:
+    - 'v*'
 
 jobs:
   build:
@@ -20,7 +23,7 @@ jobs:
       uses: NuGet/setup-nuget@v1.0.2
 
     - name: Add private GitHub registry to NuGet
-      run: nuget sources add -name "github" -Source https://nuget.pkg.github.com/pmiossec/index.json -Username pmiossec -Password ${{ secrets.GITHUB_TOKEN }}
+      run: nuget sources add -name "nuget" -Source https://api.nuget.org/v3/index.json -Username pmiossec -Password ${{ secrets.NUGET_PUSH_TOKEN }}
 
     - name: Push to GitHub nuget feed
-      run: nuget push "src/GitExtensions.AzureDevOpsCommitMessage/bin/Release/GitExtensions.AzureDevOpsCommitMessage.1.0.0.nupkg" -Source "github"
+      run: nuget push "src/GitExtensions.AzureDevOpsCommitMessage/bin/Release/GitExtensions.AzureDevOpsCommitMessage.*.nupkg" -Source "nuget"
