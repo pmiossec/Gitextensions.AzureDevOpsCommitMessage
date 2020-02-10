@@ -45,6 +45,7 @@
     <Authors>Philippe Miossec</Authors>
     <Description>GitExtensions plugin to get commit message based on Azure Devops PBIs.</Description>
     <PackageProjectUrl>https://github.com/pmiossec/GitExtensions.AzureDevOpsCommitMessage</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/pmiossec/GitExtensions.AzureDevOpsCommitMessage/master/assets/IconAzureDevOps.png</PackageIconUrl>
     <PackageTags>GitExtensions</PackageTags>
   </PropertyGroup>
   <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
