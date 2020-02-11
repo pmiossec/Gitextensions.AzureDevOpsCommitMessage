@@ -12,12 +12,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.2.108
-    - name: Build & package with dotnet
-      run: dotnet pack --configuration Release
+
+    - name: Setup MSBuild.exe
+      uses: warrenbuckley/Setup-MSBuild@v1
+
+    - name: Build & package with `msbuild`
+      run: |
+        msbuild -target:restore -property:Configuration=Release
+        msbuild -target:pack -property:Configuration=Release
 
     - name: Push to Nuget.org nuget feed
       run: |
