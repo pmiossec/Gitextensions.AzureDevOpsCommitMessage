@@ -6,6 +6,7 @@
     <authors>$author$</authors>
     <description>$description$</description>
     <projectUrl>$projectUrl$</projectUrl>
+    <iconUrl>$iconUrl$</iconUrl>
     <tags>$tags$</tags>
     <dependencies>
       <dependency id="GitExtensions.Extensibility" version="[0.1.0, 1.0.0)" />
