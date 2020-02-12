@@ -14,5 +14,6 @@
   </metadata>
   <files>
     <file src="bin/$configuration$/net461/GitExtensions.AzureDevOpsCommitMessage.dll" target="/lib" />
+    <file src="bin/$configuration$/net461/GitExtensions.AzureDevOpsCommitMessage.pdb" target="/lib" />
   </files>
 </package>
