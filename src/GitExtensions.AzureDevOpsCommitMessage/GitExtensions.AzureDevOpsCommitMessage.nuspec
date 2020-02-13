@@ -13,7 +13,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin/$configuration$/net461/GitExtensions.AzureDevOpsCommitMessage.dll" target="/lib" />
-    <file src="bin/$configuration$/net461/GitExtensions.AzureDevOpsCommitMessage.pdb" target="/lib" />
+    <file src="$targetDir$$id$.dll" target="/lib" />
+    <file src="$targetDir$$id$.pdb" target="/lib" />
   </files>
 </package>
