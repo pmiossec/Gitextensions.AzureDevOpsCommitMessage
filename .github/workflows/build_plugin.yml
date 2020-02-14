@@ -1,9 +1,11 @@
-name: .NET Core
+name: Build the plugin
 
 on:
   push:
-    tags:
-    - 'v*'
+    branches:
+    - '**'
+    tags-ignore:
+    - '*'
 
 jobs:
   build:
@@ -26,7 +28,8 @@ jobs:
         msbuild -target:restore -property:Configuration=Release
         msbuild -target:pack -property:Configuration=Release
 
-    - name: Push to Nuget.org nuget feed
-      run: |
-        cd "src/GitExtensions.AzureDevOpsCommitMessage/bin/Release"
-        dotnet nuget push *.nupkg -k ${{ secrets.NUGET_PUSH_TOKEN }} -s https://api.nuget.org/v3/index.json -n true
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ github.event.repository.name }}.nupkg
+        path: src/${{ github.event.repository.name }}/bin/Release/${{ github.event.repository.name }}.0.0.0.nupkg

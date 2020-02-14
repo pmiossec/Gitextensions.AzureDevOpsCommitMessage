@@ -5,6 +5,12 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GitExtensions.AzureDevOpsCommitMessage", "src\GitExtensions.AzureDevOpsCommitMessage\GitExtensions.AzureDevOpsCommitMessage.csproj", "{C5137205-996A-41E9-A3EB-F6DB37F6AE21}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{D1376319-B232-4550-99C6-8E9244DC42AF}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build_plugin.yml = .github\workflows\build_plugin.yml
+		.github\workflows\release_plugin.yml = .github\workflows\release_plugin.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
