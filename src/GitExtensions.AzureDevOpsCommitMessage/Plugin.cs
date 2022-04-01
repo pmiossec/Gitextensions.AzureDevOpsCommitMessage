@@ -230,7 +230,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             }
 
             var url = (string)((LinkLabel)sender).Tag;
-            Process.Start(url.Replace("{organization}", urlParts[3]));
+            LinkLabelOpener.OpenUrl(url.Replace("{organization}", urlParts[3]));
         }
 
         private async Task DisplayQueryResultAsync(HttpClient httpClient, string projectUrl, string wiqlQuery, string templateString)
