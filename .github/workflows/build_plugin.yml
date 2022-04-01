@@ -18,15 +18,12 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 2.2.108
+        dotnet-version: 5.0.406
 
-    - name: Setup MSBuild.exe
-      uses: warrenbuckley/Setup-MSBuild@v1
-
-    - name: Build & package with `msbuild`
+    - name: Build & package with `dotnet`
       run: |
-        msbuild -target:restore -property:Configuration=Release
-        msbuild -target:pack -property:Configuration=Release
+        dotnet restore
+        dotnet pack -c Release
 
     - name: Upload artifact
       uses: actions/upload-artifact@v1
