@@ -333,3 +333,6 @@ references/
 
 # Git Extensions specific files
 GitExtensions.settings.backup
+
+[Gg]itextensions.[Ss]hared/GitExtensions/*
+[Gg]itextensions.[Ss]hared/GitExtensions-*.zip
