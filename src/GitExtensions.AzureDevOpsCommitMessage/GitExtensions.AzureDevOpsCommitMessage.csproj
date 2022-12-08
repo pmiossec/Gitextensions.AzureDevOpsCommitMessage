@@ -30,13 +30,13 @@
   <!-- Reference to GitExtensions dlls. -->
   <ItemGroup>
     <Reference Include="GitUIPluginInterfaces">
-      <HintPath>$(GitExtensionsPath)\GitUIPluginInterfaces.dll</HintPath>
+      <HintPath>$(GitExtensionsPath)\..\GitUIPluginInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="GitExtUtils">
-      <HintPath>$(GitExtensionsPath)\GitExtUtils.dll</HintPath>
+      <HintPath>$(GitExtensionsPath)\..\GitExtUtils.dll</HintPath>
     </Reference>
     <Reference Include="ResourceManager">
-      <HintPath>$(GitExtensionsPath)\ResourceManager.dll</HintPath>
+      <HintPath>$(GitExtensionsPath)\..\ResourceManager.dll</HintPath>
     </Reference>
   </ItemGroup>
 
