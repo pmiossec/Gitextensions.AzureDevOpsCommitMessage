@@ -144,7 +144,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             yield return new PseudoSetting($"{WorkItemsFields}: {{id}} {{{string.Join("} {", SupportedWorkItemFields.OrderBy(i => i).ToArray())}}}",
                 AzureDevOpsFieldsLabel.Text, DpiUtil.Scale(55));
 
-            var workItemsFieldsHelpLink = new PseudoSetting(new LinkLabelOpener { Text = WorkItemsDocumentationLink.Text, Tag = "https://docs.microsoft.com/rest/api/azure/devops/wit/work%20items/get%20work%20item#examples" });
+            var workItemsFieldsHelpLink = new PseudoSetting(new LinkLabelOpener { Text = WorkItemsDocumentationLink.Text, Tag = "https://learn.microsoft.com/rest/api/azure/devops/wit/work-items/get-work-item#examples" });
             yield return workItemsFieldsHelpLink;
 
             var txtTemplate = new TextBox
