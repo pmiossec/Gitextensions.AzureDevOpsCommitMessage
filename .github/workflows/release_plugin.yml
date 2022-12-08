@@ -48,4 +48,4 @@ jobs:
     - name: Push to Nuget.org nuget feed
       run: |
         cd "src/${{ github.event.repository.name }}/bin/Release"
-        dotnet nuget push *.nupkg -k ${{ secrets.NUGET_PUSH_TOKEN }} -s https://api.nuget.org/v3/index.json -n true
+        dotnet nuget push *.nupkg -k ${{ secrets.NUGET_PUSH_TOKEN }} -s https://api.nuget.org/v3/index.json -n
