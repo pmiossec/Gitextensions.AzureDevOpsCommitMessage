@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,6 +17,8 @@ using GitUIPluginInterfaces;
 using GitUIPluginInterfaces.UserControls;
 using Newtonsoft.Json.Linq;
 using ResourceManager;
+
+[assembly: InternalsVisibleTo("Gitextensions.AzureDevOpsCommitMessageTests")]
 
 namespace GitExtensions.AzureDevOpsCommitMessage
 {
@@ -365,24 +367,17 @@ namespace GitExtensions.AzureDevOpsCommitMessage
                     var response = await client.SendAsync(request).ConfigureAwait(true);
                     if (!response.IsSuccessStatusCode)
                     {
-                        return new[] { new CommitTemplate($"Call error", response.ReasonPhrase) };
+                        return new[] { new CommitTemplate("Call error", response.ReasonPhrase) };
                     }
 
                     try
                     {
-                        var commitTemplates = new List<CommitTemplate>();
                         var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        var workItems = JObject.Parse(responseContent)["workItems"];
-                        if (workItems == null)
+                        var commitTemplates = new List<CommitTemplate>();
+                        foreach (var workitem in GetWorkitems(responseContent))
                         {
-                            return commitTemplates;
+                            commitTemplates.Add(await GetWorkItemAsync(client, workitem.id, workitem.url, stringTemplate));
                         }
-
-                        foreach (JToken workitem in workItems)
-                        {
-                            commitTemplates.Add(await GetWorkItemAsync(client, workitem["id"].ToString(), workitem["url"].ToString(), stringTemplate));
-                        }
-
                         return commitTemplates;
                     }
                     catch (Exception e)
@@ -397,8 +392,18 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             }
         }
 
-        private async Task<CommitTemplate> GetWorkItemAsync(HttpClient client, string id, string url,
-            string template)
+        private IEnumerable<(string id, string url)> GetWorkitems(string jsonWorkitems)
+        {
+            var workItems = JObject.Parse(jsonWorkitems)["workItems"];
+            if (workItems == null)
+            {
+                return Enumerable.Empty<(string id, string url)>();
+            }
+
+            return workItems.Select(w => (w["id"].ToString(), w["url"].ToString()));
+        }
+
+        private async Task<CommitTemplate> GetWorkItemAsync(HttpClient client, string id, string url, string template)
         {
             using (var request = new HttpRequestMessage(new HttpMethod("GET"), url))
             {
@@ -407,14 +412,8 @@ namespace GitExtensions.AzureDevOpsCommitMessage
                 {
                     try
                     {
-                        var responseContent = await response.Content.ReadAsStringAsync();
-                        var workItemData = JObject.Parse(responseContent)["fields"];
-                        if (_btnPreview != null)
-                        {
-                            _allFieldsAndValues = ExtractAllFields(workItemData);
-                        }
-
-                        return new CommitTemplate(PopulateTemplate("{id}: {System.Title}", id, workItemData), PopulateTemplate(template, id, workItemData));
+                        var jsonWorkitem = await response.Content.ReadAsStringAsync();
+                        return GetCommitTemplateFromWorkitemData(id, template, jsonWorkitem);
                     }
                     catch (Exception e)
                     {
@@ -424,6 +423,18 @@ namespace GitExtensions.AzureDevOpsCommitMessage
 
                 return new CommitTemplate(ApiCallError.Text, response.ReasonPhrase);
             }
+        }
+
+        private CommitTemplate GetCommitTemplateFromWorkitemData(string id, string template, string jsonWorkitem)
+        {
+            var workItemData = JObject.Parse(jsonWorkitem)["fields"];
+            if (_btnPreview != null)
+            {
+                _allFieldsAndValues = ExtractAllFields(workItemData);
+            }
+
+            return new CommitTemplate(PopulateTemplate("{id}: {System.Title}", id, workItemData),
+                PopulateTemplate(template, id, workItemData));
         }
 
         private string Elide(string value)
@@ -560,7 +571,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             return s;
         }
 
-        private class CommitTemplate
+        public class CommitTemplate
         {
             public string Title { get; }
             public string Text { get; }
@@ -570,6 +581,25 @@ namespace GitExtensions.AzureDevOpsCommitMessage
                 Title = title;
                 Text = text;
             }
+        }
+
+
+        internal TestAccessor GetTestAccessor()
+            => new(this);
+
+        internal readonly struct TestAccessor
+        {
+            private readonly Plugin _plugin;
+
+            public TestAccessor(Plugin plugin)
+            {
+                _plugin = plugin;
+            }
+
+            public CommitTemplate GetCommitTemplateFromWorkItemData(string id, string template, string jsonWorkitem)
+                => _plugin.GetCommitTemplateFromWorkitemData(id, template, jsonWorkitem);
+            public IEnumerable<(string id, string url)> GetWorkItems(string jsonWorkitem)
+                => _plugin.GetWorkitems(jsonWorkitem);
         }
     }
 }
