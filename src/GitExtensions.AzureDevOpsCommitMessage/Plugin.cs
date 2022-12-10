@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,7 +17,6 @@ using GitExtUtils.GitUI;
 using GitUI;
 using GitUIPluginInterfaces;
 using GitUIPluginInterfaces.UserControls;
-using Newtonsoft.Json.Linq;
 using ResourceManager;
 
 [assembly: InternalsVisibleTo("Gitextensions.AzureDevOpsCommitMessageTests")]
@@ -394,7 +395,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
 
         private IEnumerable<(string id, string url)> GetWorkitems(string jsonWorkitems)
         {
-            var workItems = JObject.Parse(jsonWorkitems)["workItems"];
+            var workItems = JsonNode.Parse(jsonWorkitems)?["workItems"].AsArray();
             if (workItems == null)
             {
                 return Enumerable.Empty<(string id, string url)>();
@@ -427,7 +428,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
 
         private CommitTemplate GetCommitTemplateFromWorkitemData(string id, string template, string jsonWorkitem)
         {
-            var workItemData = JObject.Parse(jsonWorkitem)["fields"];
+            var workItemData = (JsonObject)JsonNode.Parse(jsonWorkitem)?["fields"];
             if (_btnPreview != null)
             {
                 _allFieldsAndValues = ExtractAllFields(workItemData);
@@ -453,35 +454,35 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             return value.Length > 80 ? value.Substring(0, 80) + "[...]" : value;
         }
 
-        private string ExtractAllFields(JToken fields)
+        private string ExtractAllFields(JsonObject fields)
         {
             List<string> allFields = new List<string>();
-            foreach (var pair in (JObject)fields)
+            foreach (var pair in fields)
             {
-                if (!pair.Value.HasValues)
+                if (pair.Value is JsonValue)
                 {
                     allFields.Add($"{{{pair.Key}}}: {Elide(pair.Value.ToString())}");
                 }
                 else
                 {
-                    allFields.AddRange(FlattenFieldsHierarchy(pair.Key, pair.Value));
+                    allFields.AddRange(FlattenFieldsHierarchy(pair.Key, (JsonObject)pair.Value));
                 }
             }
 
             return string.Join(Environment.NewLine, allFields.OrderBy(s => s));
         }
 
-        private IEnumerable<string> FlattenFieldsHierarchy(string key, JToken fields)
+        private IEnumerable<string> FlattenFieldsHierarchy(string key, JsonObject fields)
         {
-            foreach (var pair in (JObject)fields)
+            foreach (var pair in fields)
             {
-                if (!pair.Value.HasValues)
+                if (pair.Value is JsonValue)
                 {
                     yield return $"{{{key}|{pair.Key}}}: {Elide(pair.Value.ToString())}";
                 }
                 else
                 {
-                    foreach (string value in FlattenFieldsHierarchy(key + "|" + pair.Key, pair.Value))
+                    foreach (string value in FlattenFieldsHierarchy(key + "|" + pair.Key, (JsonObject)pair.Value))
                     {
                         yield return value;
                     }
@@ -489,18 +490,19 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             }
         }
 
-        private string PopulateTemplate(string titleTemplate, string id, JToken workitem)
+        private string PopulateTemplate(string titleTemplate, string id, JsonObject workitem)
         {
             return ExtractWorkItemField(titleTemplate.Replace("{id}", id), workitem);
         }
 
-        private static bool TryGetWorkItemValue(JToken workitem, string workItemField, out string value)
+        private static bool TryGetWorkItemValue(JsonObject workitem, string workItemField, out string value)
         {
             if (workItemField.Contains('|'))
             {
                 var fields = workItemField.Split('|');
-                foreach (var field in fields)
+                for (var index = 0; index < fields.Length; index++)
                 {
+                    var field = fields[index];
                     var foundValue = workitem[field];
                     if (foundValue == null)
                     {
@@ -508,7 +510,21 @@ namespace GitExtensions.AzureDevOpsCommitMessage
                         return false;
                     }
 
-                    workitem = foundValue;
+                    if (index == fields.Length - 2)
+                    {
+                        var lastFieldPart = fields[index + 1];
+                        var expectedValue = foundValue[lastFieldPart];
+                        if (expectedValue == null)
+                        {
+                            value = null;
+                            return false;
+                        }
+
+                        value = expectedValue.ToString();
+                        return true;
+                    }
+
+                    workitem = foundValue.AsObject();
                 }
 
                 value = workitem.ToString();
@@ -527,7 +543,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             }
         }
 
-        public static string ExtractWorkItemField(string pattern, JToken workitem)
+        public static string ExtractWorkItemField(string pattern, JsonObject workitem)
         {
             if (string.IsNullOrWhiteSpace(pattern))
             {
