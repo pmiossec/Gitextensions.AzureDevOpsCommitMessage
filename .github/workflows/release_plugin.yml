@@ -29,10 +29,10 @@ jobs:
         files: 'src/${{ github.event.repository.name }}/${{ github.event.repository.name }}.csproj'
         replacements: '<VersionPrefix>0.0.0</VersionPrefix>=<VersionPrefix>${{ steps.extract_version.outputs.version }}</VersionPrefix>'
 
-    - name: Setup .net6
+    - name: Setup .net8
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.401
+        dotnet-version: 8.0.401
 
     - name: Build & package with `dotnet`
       run: |

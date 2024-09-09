@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -27,8 +27,12 @@
 
   <ItemGroup>
     <Reference Include="ResourceManager">
-      <HintPath>..\..\gitextensions.shared\ResourceManager.dll</HintPath>
+      <HintPath>..\gitextensions.shared\ResourceManager.dll</HintPath>
     </Reference>
+    <Reference Include="GitExtensions.Extensibility">
+      <HintPath>..\gitextensions.shared\GitExtensions.Extensibility.dll</HintPath>
+    </Reference>
+
   </ItemGroup>
 
 </Project>

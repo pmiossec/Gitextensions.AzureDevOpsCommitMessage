@@ -18,10 +18,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Setup .net6
+    - name: Setup .net8
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.401
+        dotnet-version: 8.0.401
 
     - name: Build & package with `dotnet`
       run: |

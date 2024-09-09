@@ -10,20 +10,26 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using GitCommands;
 using GitExtensions.AzureDevOpsCommitMessage.Properties;
 using GitExtUtils.GitUI;
 using GitUI;
 using GitUIPluginInterfaces;
-using GitUIPluginInterfaces.UserControls;
+using GitExtensions.Extensibility.Plugins;
+using GitExtensions.Extensibility.Settings; 
 using Newtonsoft.Json.Linq;
 using ResourceManager;
+using GitExtensions.Extensibility.Git;
+using GitExtensions.Extensibility.Settings.UserControls;
 
 [assembly: InternalsVisibleTo("Gitextensions.AzureDevOpsCommitMessageTests")]
 
 namespace GitExtensions.AzureDevOpsCommitMessage
 {
     [Export(typeof(IGitPlugin))]
-    public class Plugin : GitPluginBase, IGitPluginForRepository
+    [Export(typeof(IGitPluginForCommit))]
+    [Export(typeof(IGitPluginForRepository))]
+    public class Plugin : GitPluginBase, IGitPluginForRepository, IGitPluginForCommit
     {
         private static readonly TranslationString AzureDevOpsCredentialsLabel = new TranslationString("Azure DevOps credentials");
         private static readonly TranslationString AzureDevOpsQueryLabel = new TranslationString("Work items Query (WIQL)");
@@ -91,7 +97,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
         public Plugin() : base(true)
         {
             SetNameAndDescription("AzureDevOps Commit Message");
-            Translate();
+            Translate(AppSettings.CurrentTranslation);
             Icon = Resources.Icon;
 
             _credentialsSettings = new CredentialsSetting("AzureDevOpsCredentials", AzureDevOpsCredentialsLabel.Text, () => _gitModule?.WorkingDir);
@@ -259,7 +265,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
         public override void Register(IGitUICommands gitUiCommands)
         {
             base.Register(gitUiCommands);
-            _gitModule = gitUiCommands.GitModule;
+            _gitModule = gitUiCommands.Module;
             gitUiCommands.PostSettings += gitUiCommands_PostSettings;
             gitUiCommands.PreCommit += gitUiCommands_PreCommit;
             gitUiCommands.PostCommit += gitUiCommands_PostRepositoryChanged;
