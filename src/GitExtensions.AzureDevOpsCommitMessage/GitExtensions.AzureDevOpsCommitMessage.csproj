@@ -16,6 +16,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Resources\IconAzureDevOps.png" >
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -32,7 +39,7 @@
     <PackageReference Include="GitExtensions.Extensibility" Version="0.3.2.72" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.4.27" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Reference to GitExtensions dlls. -->
@@ -61,7 +68,6 @@
     <Authors>Philippe Miossec</Authors>
     <Description>GitExtensions plugin to get commit message based on Azure Devops PBIs.</Description>
     <PackageProjectUrl>https://github.com/pmiossec/GitExtensions.AzureDevOpsCommitMessage</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/pmiossec/GitExtensions.AzureDevOpsCommitMessage/master/assets/IconAzureDevOps.png</PackageIconUrl>
     <PackageTags>GitExtensions</PackageTags>
   </PropertyGroup>
   

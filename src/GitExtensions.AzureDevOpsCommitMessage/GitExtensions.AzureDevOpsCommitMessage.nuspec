@@ -6,7 +6,8 @@
     <authors>$author$</authors>
     <description>$description$</description>
     <projectUrl>$projectUrl$</projectUrl>
-    <iconUrl>$iconUrl$</iconUrl>
+    <icon>Resources\IconAzureDevOps.png</icon>
+    <readme>readme.md</readme>
     <tags>$tags$</tags>
     <dependencies>
       <dependency id="GitExtensions.Extensibility" version="[0.1.0, 1.0.0)" />
@@ -15,5 +16,8 @@
   <files>
     <file src="$targetDir$$id$.dll" target="/lib" />
     <file src="$targetDir$$id$.pdb" target="/lib" />
+    <file src="Resources\IconAzureDevOps.png" target="\Resources\" />
+    <file src="..\..\LICENSE.md" target="\" />
+    <file src="..\..\README.md" target="\" />
   </files>
 </package>
