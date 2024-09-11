@@ -1,6 +1,9 @@
-name: Release a new version of the plugin
+name: Release a new version of the plugin GitExtensions.AzureDevOpsCommitMessage
 
-# Release is made by pushin a tag with format 'vX.Y.Z' (ex: v1.0.2)
+# Release is made by pushing a tag with format 'vX.Y.Z' (ex: v1.0.2)
+
+# /!\ Ensure that the Repository secrets `NUGET_PUSH_TOKEN` is defined in github.org 
+# with a nuget.org token allowed to publish new packages
 
 on:
   push:
@@ -16,7 +19,7 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: Extract version
       shell: bash
@@ -30,7 +33,7 @@ jobs:
         replacements: '<VersionPrefix>0.0.0</VersionPrefix>=<VersionPrefix>${{ steps.extract_version.outputs.version }}</VersionPrefix>'
 
     - name: Setup .net8
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.401
 

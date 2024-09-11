@@ -1,4 +1,4 @@
-name: Build the plugin
+name: Build the plugin GitExtensions.AzureDevOpsCommitMessage
 
 on:
   push:
@@ -16,10 +16,10 @@ jobs:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: Setup .net8
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.401
 
