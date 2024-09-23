@@ -322,7 +322,7 @@ namespace GitExtensions.AzureDevOpsCommitMessage
 
         private void gitUiCommands_PreCommit(object sender, GitUIEventArgs e)
         {
-            if (!_enabledSettings.ValueOrDefault(Settings))
+            if (_httpClient == null || !_enabledSettings.ValueOrDefault(Settings))
             {
                 return;
             }
