@@ -27,10 +27,10 @@
 
   <ItemGroup>
     <Reference Include="ResourceManager">
-      <HintPath>..\gitextensions.shared\ResourceManager.dll</HintPath>
+      <HintPath>$(GitExtensionsPath)\ResourceManager.dll</HintPath>
     </Reference>
     <Reference Include="GitExtensions.Extensibility">
-      <HintPath>..\gitextensions.shared\GitExtensions.Extensibility.dll</HintPath>
+      <HintPath>$(GitExtensionsPath)\GitExtensions.Extensibility.dll</HintPath>
     </Reference>
 
   </ItemGroup>
