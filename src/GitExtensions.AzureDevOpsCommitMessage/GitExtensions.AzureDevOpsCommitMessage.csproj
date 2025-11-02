@@ -9,7 +9,7 @@
     <!-- Source: 'GitHub' or 'AppVeyor' -->
     <!--<GitExtensionsReferenceSource Condition="$(GitExtensionsReferenceSource) == ''">AppVeyor</GitExtensionsReferenceSource>-->
     <!-- Version: 'latest' or 'v3.1' (= tag from GitHub releases) or 'v3.1.0.5877' (= build number from AppVeyor)-->
-    <!--<GitExtensionsReferenceVersion>v5.1.0.17907</GitExtensionsReferenceVersion>-->
+    <GitExtensionsReferenceVersion>v6.0.1</GitExtensionsReferenceVersion>
     <!--<GitExtensionsReferenceVersion>latest</GitExtensionsReferenceVersion>-->
     <!-- Binaries path for local builds (no download if folder exists) -->
     <!--<GitExtensionsPath Condition="$(GitExtensionsPath) == ''">$([System.IO.Path]::Combine('$(ProjectDir)', '$(GitExtensionsDownloadPath)'))</GitExtensionsPath>-->
