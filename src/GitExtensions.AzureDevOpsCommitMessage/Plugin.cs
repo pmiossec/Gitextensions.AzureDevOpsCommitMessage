@@ -85,8 +85,8 @@ namespace GitExtensions.AzureDevOpsCommitMessage
         private readonly BoolSetting _enabledSettings = new BoolSetting("Enabled", false);
         private readonly StringSetting _projectUrlSettings = new StringSetting("AzureDevOps project URL", @"https://dev.azure.com/{organization}/{project}");
         private readonly CredentialsSetting _credentialsSettings;
-        private readonly StringSetting _wiqlQuerySettings = new StringSetting("WIQL Query", AzureDevOpsQueryLabel.Text, "Select [System.Id] From WorkItems Where ( [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Bug' ) AND [State] <> 'Closed' AND [State] <> 'Removed' AND [System.AssignedTo] = @Me AND [System.IterationPath] = @CurrentIteration order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", true);
-        private readonly StringSetting _stringTemplateSetting = new StringSetting("AzureDevOps Message Template", MessageTemplateLabel.Text, DefaultFormat, true);
+        private readonly StringSetting _wiqlQuerySettings = new StringSetting("WIQL Query", AzureDevOpsQueryLabel.Text, "Select [System.Id] From WorkItems Where ( [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Bug' ) AND [State] <> 'Closed' AND [State] <> 'Removed' AND [System.AssignedTo] = @Me AND [System.IterationPath] = @CurrentIteration order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc");
+        private readonly StringSetting _stringTemplateSetting = new StringSetting("AzureDevOps Message Template", MessageTemplateLabel.Text, DefaultFormat);
         private readonly PseudoSetting _allFieldsAndValuesSetting = new PseudoSetting(HowToRetrieveWorkItemsFieldsValues.Text, WorkItemsFieldsValuesCaption.Text, DpiUtil.Scale(200), t => t.ScrollBars = ScrollBars.Both);
 
         private IGitModule _gitModule;
