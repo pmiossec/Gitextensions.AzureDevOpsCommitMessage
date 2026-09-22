@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Resources\IconAzureDevOps.png" >
+    <None Include="Resources\IconAzureDevOps.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
@@ -39,7 +39,7 @@
     <PackageReference Include="GitExtensions.Extensibility" Version="7.0.0.135" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.13.61" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" />
   </ItemGroup>
 
   <!-- Reference to GitExtensions dlls. -->
