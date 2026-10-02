@@ -17,7 +17,8 @@ using GitUI;
 using GitUIPluginInterfaces;
 using GitExtensions.Extensibility.Plugins;
 using GitExtensions.Extensibility.Settings; 
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using ResourceManager;
 using GitExtensions.Extensibility.Git;
 using GitExtensions.Extensibility.Settings.UserControls;
@@ -85,8 +86,8 @@ namespace GitExtensions.AzureDevOpsCommitMessage
         private readonly BoolSetting _enabledSettings = new BoolSetting("Enabled", false);
         private readonly StringSetting _projectUrlSettings = new StringSetting("AzureDevOps project URL", @"https://dev.azure.com/{organization}/{project}");
         private readonly CredentialsSetting _credentialsSettings;
-        private readonly StringSetting _wiqlQuerySettings = new StringSetting("WIQL Query", AzureDevOpsQueryLabel.Text, "Select [System.Id] From WorkItems Where ( [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Bug' ) AND [State] <> 'Closed' AND [State] <> 'Removed' AND [System.AssignedTo] = @Me AND [System.IterationPath] = @CurrentIteration order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc", true);
-        private readonly StringSetting _stringTemplateSetting = new StringSetting("AzureDevOps Message Template", MessageTemplateLabel.Text, DefaultFormat, true);
+        private readonly StringSetting _wiqlQuerySettings = new StringSetting("WIQL Query", AzureDevOpsQueryLabel.Text, "Select [System.Id] From WorkItems Where ( [System.WorkItemType] = 'Product Backlog Item' OR [System.WorkItemType] = 'Bug' ) AND [State] <> 'Closed' AND [State] <> 'Removed' AND [System.AssignedTo] = @Me AND [System.IterationPath] = @CurrentIteration order by [Microsoft.VSTS.Common.Priority] asc, [System.CreatedDate] desc");
+        private readonly StringSetting _stringTemplateSetting = new StringSetting("AzureDevOps Message Template", MessageTemplateLabel.Text, DefaultFormat);
         private readonly PseudoSetting _allFieldsAndValuesSetting = new PseudoSetting(HowToRetrieveWorkItemsFieldsValues.Text, WorkItemsFieldsValuesCaption.Text, DpiUtil.Scale(200), t => t.ScrollBars = ScrollBars.Both);
 
         private IGitModule _gitModule;
@@ -397,16 +398,23 @@ namespace GitExtensions.AzureDevOpsCommitMessage
                 return new[] { new CommitTemplate($"{Description} {Error}", ex.ToString()) };
             }
         }
-
         private IEnumerable<(string id, string url)> GetWorkitems(string jsonWorkitems)
         {
-            var workItems = JObject.Parse(jsonWorkitems)["workItems"];
-            if (workItems == null)
+            using var doc = JsonDocument.Parse(jsonWorkitems);
+            if (!doc.RootElement.TryGetProperty("workItems", out var workItemsElement) || workItemsElement.ValueKind != JsonValueKind.Array)
             {
                 return Enumerable.Empty<(string id, string url)>();
             }
 
-            return workItems.Select(w => (w["id"].ToString(), w["url"].ToString()));
+            var result = new List<(string id, string url)>();
+            foreach (var item in workItemsElement.EnumerateArray())
+            {
+                var id = item.TryGetProperty("id", out var idEl) ? (idEl.ValueKind == JsonValueKind.String ? idEl.GetString() : idEl.GetRawText()) : string.Empty;
+                var url = item.TryGetProperty("url", out var urlEl) ? urlEl.GetString() ?? urlEl.GetRawText() : string.Empty;
+                result.Add((id ?? string.Empty, url ?? string.Empty));
+            }
+
+            return result;
         }
 
         private async Task<CommitTemplate> GetWorkItemAsync(HttpClient client, string id, string url, string template)
@@ -433,7 +441,12 @@ namespace GitExtensions.AzureDevOpsCommitMessage
 
         private CommitTemplate GetCommitTemplateFromWorkitemData(string id, string template, string jsonWorkitem)
         {
-            var workItemData = JObject.Parse(jsonWorkitem)["fields"];
+            using var doc = JsonDocument.Parse(jsonWorkitem);
+            if (!doc.RootElement.TryGetProperty("fields", out var workItemData))
+            {
+                workItemData = default;
+            }
+
             if (_btnPreview != null)
             {
                 _allFieldsAndValues = ExtractAllFields(workItemData);
@@ -459,35 +472,45 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             return value.Length > 80 ? value.Substring(0, 80) + "[...]" : value;
         }
 
-        private string ExtractAllFields(JToken fields)
+        private string ExtractAllFields(JsonElement fields)
         {
-            List<string> allFields = new List<string>();
-            foreach (var pair in (JObject)fields)
+            var allFields = new List<string>();
+            if (fields.ValueKind != JsonValueKind.Object)
             {
-                if (!pair.Value.HasValues)
+                return string.Empty;
+            }
+
+            foreach (var prop in fields.EnumerateObject())
+            {
+                if (prop.Value.ValueKind != JsonValueKind.Object)
                 {
-                    allFields.Add($"{{{pair.Key}}}: {Elide(pair.Value.ToString())}");
+                    allFields.Add($"{{{prop.Name}}}: {Elide(ElementToString(prop.Value))}");
                 }
                 else
                 {
-                    allFields.AddRange(FlattenFieldsHierarchy(pair.Key, pair.Value));
+                    allFields.AddRange(FlattenFieldsHierarchy(prop.Name, prop.Value));
                 }
             }
 
             return string.Join(Environment.NewLine, allFields.OrderBy(s => s));
         }
 
-        private IEnumerable<string> FlattenFieldsHierarchy(string key, JToken fields)
+        private IEnumerable<string> FlattenFieldsHierarchy(string key, JsonElement fields)
         {
-            foreach (var pair in (JObject)fields)
+            if (fields.ValueKind != JsonValueKind.Object)
             {
-                if (!pair.Value.HasValues)
+                yield break;
+            }
+
+            foreach (var prop in fields.EnumerateObject())
+            {
+                if (prop.Value.ValueKind != JsonValueKind.Object)
                 {
-                    yield return $"{{{key}|{pair.Key}}}: {Elide(pair.Value.ToString())}";
+                    yield return $"{{{key}|{prop.Name}}}: {Elide(ElementToString(prop.Value))}";
                 }
                 else
                 {
-                    foreach (string value in FlattenFieldsHierarchy(key + "|" + pair.Key, pair.Value))
+                    foreach (var value in FlattenFieldsHierarchy(key + "|" + prop.Name, prop.Value))
                     {
                         yield return value;
                     }
@@ -495,45 +518,50 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             }
         }
 
-        private string PopulateTemplate(string titleTemplate, string id, JToken workitem)
+        private string PopulateTemplate(string titleTemplate, string id, JsonElement workitem)
         {
             return ExtractWorkItemField(titleTemplate.Replace("{id}", id), workitem);
         }
 
-        private static bool TryGetWorkItemValue(JToken workitem, string workItemField, out string value)
+        private static bool TryGetWorkItemValue(JsonElement workitem, string workItemField, out string value)
         {
+            value = null;
             if (workItemField.Contains('|'))
             {
                 var fields = workItemField.Split('|');
+                var current = workitem;
                 foreach (var field in fields)
                 {
-                    var foundValue = workitem[field];
-                    if (foundValue == null)
+                    if (current.ValueKind != JsonValueKind.Object || !current.TryGetProperty(field, out var foundValue))
                     {
                         value = null;
                         return false;
                     }
 
-                    workitem = foundValue;
+                    current = foundValue;
                 }
 
-                value = workitem.ToString();
+                value = ElementToString(current);
                 return true;
             }
             else
             {
-                var foundValue = workitem[workItemField];
-                value = foundValue?.ToString();
-                if (workItemField == "System.Description")
+                if (workitem.ValueKind == JsonValueKind.Object && workitem.TryGetProperty(workItemField, out var foundValue))
                 {
-                    value = ExtractTextFromHtml(value);
+                    value = ElementToString(foundValue);
+                    if (workItemField == "System.Description")
+                    {
+                        value = ExtractTextFromHtml(value);
+                    }
+
+                    return value != null;
                 }
 
-                return value != null;
+                return false;
             }
         }
 
-        public static string ExtractWorkItemField(string pattern, JToken workitem)
+        public static string ExtractWorkItemField(string pattern, JsonElement workitem)
         {
             if (string.IsNullOrWhiteSpace(pattern))
             {
@@ -555,6 +583,21 @@ namespace GitExtensions.AzureDevOpsCommitMessage
             }
 
             return pattern;
+        }
+
+        private static string ElementToString(JsonElement el)
+        {
+            if (el.ValueKind == JsonValueKind.String)
+            {
+                return el.GetString();
+            }
+
+            if (el.ValueKind == JsonValueKind.Null || el.ValueKind == JsonValueKind.Undefined)
+            {
+                return null;
+            }
+
+            return el.GetRawText();
         }
 
         public static string ExtractTextFromHtml(string html)

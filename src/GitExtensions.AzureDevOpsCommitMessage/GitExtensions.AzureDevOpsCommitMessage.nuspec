@@ -10,7 +10,7 @@
     <readme>README.md</readme>
     <tags>$tags$</tags>
     <dependencies>
-      <dependency id="GitExtensions.Extensibility" version="[0.1.0, 1.0.0)" />
+      <dependency id="GitExtensions.Extensibility" version="[7.0, 8.0)" />
     </dependencies>
   </metadata>
   <files>
